@@ -96,6 +96,7 @@
   <!-- Marquee w/ Scroll Direction -->
   <script src="js/gsap.min.js"></script>
   <script src="js/ScrollTrigger.min.js"></script>
+  <link href="css/chat/chat.css" rel="stylesheet" type="text/css">
 </head>
 
 <body data-barba="wrapper" class="body-v2">
@@ -1688,6 +1689,24 @@
 
 
 
+
+  <div class="chat-button" onclick="toggleChat()">🤖</div>
+  <div class="chat-container" id="chat-widget">
+      <h1>Assistente do Hub de Projetos 🤖</h1>
+      
+      <div class="chat-box" id="chat-box">
+          <div class="message bot-message">
+              <p>Olá! Eu sou o assistente do Hub, alimentado por Gemini. Pergunte sobre nossos projetos!</p>
+          </div>
+      </div>
+
+      <div class="chat-input">
+          <input type="text" id="user-input" placeholder="Digite sua pergunta...">
+          <button onclick="sendMessage()">Enviar</button>
+      </div>
+  </div>
+
+  <script src="js/chat/chat.js"></script>
 </body>
 
 </html>

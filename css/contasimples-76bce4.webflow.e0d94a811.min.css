@@ -226,6 +226,92 @@ th {
   line-height: 1;
   font-family: webflow-icons !important
 }
+.chat-box {
+    height: 400px;
+    padding: 15px;
+    overflow-y: auto; 
+    display: flex;
+    flex-direction: column;
+}
+
+
+.chat-box::-webkit-scrollbar {
+    width: 6px;
+}
+.chat-box::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 3px;
+}
+
+.message {
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin-bottom: 12px;
+    max-width: 85%;
+    line-height: 1.4;
+    word-wrap: break-word; 
+}
+
+.user-message {
+    background-color: #dcf8c6;
+    color: #1a1a1a;
+    align-self: flex-end; 
+    border-bottom-right-radius: 5px;
+}
+
+.bot-message {
+    background-color: #e0f2ff;
+    color: #1a1a1a;
+    align-self: flex-start; 
+    border-bottom-left-radius: 5px;
+}
+
+.temp-message {
+    font-style: italic;
+    color: #666;
+    background-color: #f0f0f0;
+}
+
+.chat-input {
+    display: flex;
+    border-top: 1px solid #eee;
+    padding: 10px;
+}
+
+#user-input {
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    margin-right: 10px;
+    font-size: 1em;
+    outline: none;
+}
+
+.chat-input button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.chat-input button:hover {
+    background-color: #0056b3;
+}
+
+.chat-container {
+    width: 400px;
+    max-width: 90%; 
+    background-color: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
 
 .w-icon-slider-right:before {
   content: ""
@@ -12565,7 +12651,7 @@ blockquote {
   justify-content: center;
   align-items: center;
       margin-top: 2em;
-  padding-bottom: 7.5em;
+  padding-bottom: 0em;
   display: flex
 }
 
