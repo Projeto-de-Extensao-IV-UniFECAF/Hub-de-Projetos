@@ -2,3 +2,5 @@ GEMINI.md
 .gemini/
 gha-creds-*.json
 .github
+.env
+node_modules
