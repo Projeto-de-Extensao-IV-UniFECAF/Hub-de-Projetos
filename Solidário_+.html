@@ -1767,25 +1767,26 @@
 
 
 
+ <div class="chat-button" id="toggle-btn">🤖</div>
 
-<div class="chat-button" onclick="toggleChat()">🤖</div>
   <div class="chat-container" id="chat-widget">
-      <h1>Assistente do Hub de Projetos 🤖</h1>
-      
-      <div class="chat-box" id="chat-box">
-          <div class="message bot-message">
-              <p>Olá! Eu sou o assistente do Hub, alimentado por Gemini. Pergunte sobre nossos projetos!</p>
-          </div>
-      </div>
+    <h1>Assistente do Hub de Projetos 🤖</h1>
 
-      <div class="chat-input">
-          <input type="text" id="user-input" placeholder="Digite sua pergunta...">
-          <button onclick="sendMessage()">Enviar</button>
+    <div class="chat-box" id="chat-box">
+      <div class="message bot-message">
+        <div class="bubble">  
+          <p>Olá! Eu sou o assistente do Hub, alimentado por Gemini. Pergunte sobre nossos projetos!</p>
+        </div>
       </div>
+    </div>
+
+    <div class="chat-input">
+      <input type="text" id="user-input" placeholder="Digite sua pergunta...">
+      <button id="send-btn">Enviar</button>
+    </div>
   </div>
 
-  <script src="js/chat/chat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script type="module" src="js/chat/chat.js"></script>
 </body>
 

@@ -3,13 +3,6 @@ import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 // ⚠️ INSIRA SUA CHAVE REAL AQUI
 const GEMINI_API_KEY = "";
 
-// ----------------------------------------------------
-// 1. CONFIGURAÇÃO INICIAL E PROMPT DE SISTEMA
-// ----------------------------------------------------
-
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-const modelClient = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-// Descrição dos projetos colocar aqui
 const SYSTEM_PROMPT = `Você é o Assistente do Hub de Projetos de Extensão da UniFecaf, uma inteligência artificial dedicada a iluminar o propósito e o impacto de cada iniciativa. Sua missão é ser um guia informativo e inspirador, conectando as perguntas dos usuários à essência de cada projeto. Você deve responder de forma clara, precisa e exclusivamente com base no conhecimento aprofundado que possui sobre os projetos listados abaixo. Não invente informações nem responda sobre outros tópicos.
 
 --- BASE DE CONHECIMENTO PROFUNDO DO HUB DE PROJETOS ---
@@ -89,135 +82,89 @@ const SYSTEM_PROMPT = `Você é o Assistente do Hub de Projetos de Extensão da 
 
 Lembre-se: sua função é ser um especialista nestes projetos. Seja preciso, mantenha o foco e inspire com o poder da tecnologia e do impacto social.`;
 
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
 // ----------------------------------------------------
-// 2. FUNÇÃO PRINCIPAL: CHAMAR GEMINI
+// LOGIC
 // ----------------------------------------------------
 
 async function getGeminiResponse(userText) {
-    if (GEMINI_API_KEY === "SUA_CHAVE_AQUI") {
-        return "⚠️ Erro: Você precisa inserir sua chave REAL da Gemini API em script.js.";
-    }
-
+    if (!GEMINI_API_KEY) return "⚠️ Erro: Configure a API Key no arquivo JS.";
     try {
-        addMessage("...Digitando...", 'bot-message', 'temp-message');
-
-        const prompt = `${SYSTEM_PROMPT}
-
-Pergunta do Usuário: ${userText}`;
-
-        const result = await modelClient.generateContent(prompt);
-        const response = result.response.text();
-
-        const tempMessage = document.querySelector('.temp-message');
-        if (tempMessage) tempMessage.remove();
-
-        return response || "Resposta da IA indisponível. Tente novamente.";
-
+        const result = await model.generateContent(`${SYSTEM_PROMPT}\n\nUser: ${userText}`);
+        return result.response.text();
     } catch (error) {
-        console.error('Erro ao chamar a Gemini API:', error);
-
-        const tempMessage = document.querySelector('.temp-message');
-        if (tempMessage) tempMessage.remove();
-
-        return `❌ Ocorreu um erro ao conectar com o Gemini: ${error.message}. Verifique sua chave de API ou a cota.`;
+        console.error("Gemini Error:", error);
+        return "Desculpe, serviço indisponível no momento.";
     }
 }
 
-// ----------------------------------------------------
-// 3. INTERFACE DO CHAT
-// ----------------------------------------------------
-
-function createChatWidget() {
-    // Check if chat widget already exists
-    if (document.getElementById('chat-widget')) return;
-
-    // Inject CSS
-    if (!document.querySelector('link[href*="chat.css"]')) {
-        const link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'css/chat/chat.css';
-        document.head.appendChild(link);
-    }
-
-    // Create Chat Button
-    const chatButton = document.createElement('div');
-    chatButton.className = 'chat-button';
-    chatButton.innerHTML = '🤖';
-    chatButton.onclick = toggleChat;
-    document.body.appendChild(chatButton);
-
-    // Create Chat Container
-    const chatContainer = document.createElement('div');
-    chatContainer.className = 'chat-container';
-    chatContainer.id = 'chat-widget';
-    chatContainer.innerHTML = `
-        <h1>Assistente do Hub 🤖</h1>
-        <div class="chat-box" id="chat-box">
-            <div class="message bot-message">
-                <p>Olá! Eu sou o assistente do Hub, alimentado por Gemini. Pergunte sobre nossos projetos!</p>
-            </div>
-        </div>
-        <div class="chat-input">
-            <input type="text" id="user-input" placeholder="Digite sua pergunta...">
-            <button id="send-btn">Enviar</button>
-        </div>
-    `;
-    document.body.appendChild(chatContainer);
-
-    // Add Event Listeners
-    document.getElementById('send-btn').addEventListener('click', sendMessage);
-    document.getElementById('user-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            sendMessage();
-        }
-    });
-}
-
-async function sendMessage() {
+async function handleSendMessage() {
     const userInput = document.getElementById('user-input');
     const userText = userInput.value.trim();
-
-    if (userText === '') return;
+    if (!userText) return;
 
     addMessage(userText, 'user-message');
     userInput.value = '';
 
-    const botResponse = await getGeminiResponse(userText);
-    addMessage(botResponse, 'bot-message');
+    const loadingId = 'loading-' + Date.now();
+    addMessage('Digitando...', 'bot-message', loadingId);
+
+    const response = await getGeminiResponse(userText);
+
+    const loadingEl = document.getElementById(loadingId);
+    if (loadingEl) loadingEl.remove();
+
+    addMessage(response, 'bot-message');
 }
 
-function addMessage(text, ...classes) {
+// --- FIX IS HERE ---
+function addMessage(text, type, id = null) {
     const chatBox = document.getElementById('chat-box');
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('message', ...classes);
 
-    const p = document.createElement('p');
+    // 1. The Outer Wrapper (positions left or right)
+    const msgWrapper = document.createElement('div');
+    msgWrapper.className = `message ${type}`;
+    if (id) msgWrapper.id = id;
 
-    if (classes.includes('bot-message')) {
-        // Simple markdown parsing if marked is available, otherwise just text
-        if (typeof marked !== 'undefined') {
-             p.innerHTML = marked.parse(text);
-        } else {
-            p.textContent = text;
-        }
+    // 2. The Inner Bubble (The visible colored box)
+    // We use a DIV now, not a P, to avoid <p><p> nesting
+    const bubble = document.createElement('div');
+    bubble.className = 'bubble';
+
+    // 3. Inject Content
+    if (type === 'bot-message' && typeof marked !== 'undefined') {
+        // marked will create <p> tags inside our bubble div
+        bubble.innerHTML = marked.parse(text);
     } else {
-        p.textContent = text;
+        bubble.textContent = text;
     }
 
-    messageElement.appendChild(p);
-    chatBox.appendChild(messageElement);
+    msgWrapper.appendChild(bubble);
+    chatBox.appendChild(msgWrapper);
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
 function toggleChat() {
-    const chatContainer = document.getElementById('chat-widget');
-    chatContainer.classList.toggle('open');
+    const chatWidget = document.getElementById('chat-widget');
+    chatWidget.classList.toggle('open');
+    if (chatWidget.classList.contains('open')) {
+        document.getElementById('user-input').focus();
+    }
 }
 
-// Initialize Chat
 document.addEventListener('DOMContentLoaded', () => {
-    createChatWidget();
-});
+    const toggleBtn = document.getElementById('toggle-btn');
+    if (toggleBtn) toggleBtn.addEventListener('click', toggleChat);
 
-// Expose functions globally if needed (though module scope is preferred)
-window.toggleChat = toggleChat;
+    const sendBtn = document.getElementById('send-btn');
+    if (sendBtn) sendBtn.addEventListener('click', handleSendMessage);
+
+    const userInput = document.getElementById('user-input');
+    if (userInput) {
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleSendMessage();
+        });
+    }
+});
